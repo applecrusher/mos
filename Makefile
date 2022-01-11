@@ -58,6 +58,7 @@ vendor/modules.txt:
 deps: vendor/modules.txt
 
 genstubs:
+	cli/flash/esp32c3/stub/genstub.sh
 	cli/flash/esp32/stub/genstub.sh
 	cli/flash/esp8266/stub/genstub.sh
 

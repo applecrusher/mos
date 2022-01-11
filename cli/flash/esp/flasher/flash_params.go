@@ -24,6 +24,7 @@ import (
 	"github.com/juju/errors"
 	"github.com/mongoose-os/mos/cli/flash/esp"
 	"github.com/mongoose-os/mos/cli/flash/esp32"
+	"github.com/mongoose-os/mos/cli/flash/esp32c3"
 	"github.com/mongoose-os/mos/cli/flash/esp8266"
 	glog "k8s.io/klog/v2"
 )
@@ -60,6 +61,8 @@ func getFlashSizeId(ct esp.ChipType, s string) int {
 		return esp8266.FlashSizeToId[s] - 1
 	case esp.ChipESP32:
 		return esp32.FlashSizeToId[s] - 1
+	case esp.ChipESP32C3:
+		return esp32c3.FlashSizeToId[s] - 1
 	}
 	return -1
 }
@@ -70,6 +73,8 @@ func getFlashSize(ct esp.ChipType, sizeId int) int {
 		return esp8266.FlashSizes[sizeId]
 	case esp.ChipESP32:
 		return esp32.FlashSizes[sizeId]
+	case esp.ChipESP32C3:
+		return esp32c3.FlashSizes[sizeId]
 	}
 	return 0
 }
@@ -166,6 +171,8 @@ func (fp *flashParams) SetSize(size int) error {
 		flashSizes = esp8266.FlashSizes
 	case esp.ChipESP32:
 		flashSizes = esp32.FlashSizes
+	case esp.ChipESP32C3:
+		flashSizes = esp32c3.FlashSizes
 	}
 	for sizeId, s := range flashSizes {
 		if s == size {
@@ -202,6 +209,8 @@ func (fp flashParams) String() string {
 		flashSizeToId = esp8266.FlashSizeToId
 	case esp.ChipESP32:
 		flashSizeToId = esp32.FlashSizeToId
+	case esp.ChipESP32C3:
+		flashSizeToId = esp32c3.FlashSizeToId
 	}
 	for k, v := range flashSizeToId {
 		if v-1 == fp.sizeId {

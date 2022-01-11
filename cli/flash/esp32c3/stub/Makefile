@@ -27,7 +27,9 @@ $(STUB): $(SRCS) $(COMMON_STUB_DIR)/wrap_stub.py
          -I/opt/Espressif/esp-idf/components/esp_rom/include \
          -I/opt/Espressif/esp-idf/components/soc/include \
          -I/opt/Espressif/esp-idf/components/soc/esp32c3/include \
+         -I/opt/Espressif/esp-idf/components/spi_flash/include \
          -I/opt/Espressif/esp-idf/components/spi_flash/private_include \
+         -I/opt/Espressif/esp-idf/components/hal/include \
          -I/opt/Espressif/esp-idf/components/riscv/include \
          -L/opt/Espressif/esp-idf \
          -ffunction-sections -Wl,-static -Wl,--gc-sections \

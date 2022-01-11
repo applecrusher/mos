@@ -42,12 +42,4 @@ SECTIONS {
 }
 
 INCLUDE "components/esp_rom/esp32c3/ld/esp32c3.rom.ld"
-
-PROVIDE ( memcpy = 0x40000358 );
-PROVIDE ( memset = 0x40000354 );
-PROVIDE ( MD5Init = 0x40000614 );
-PROVIDE ( MD5Update = 0x40000618 );
-PROVIDE ( MD5Final = 0x4000061c );
-PROVIDE ( ets_isr_mask = 0x40000608 );
-PROVIDE ( ets_isr_unmask = 0x4000060c );
-PROVIDE ( esp_rom_spiflash_erase_area = 0x400001e4 );
+INCLUDE "components/esp_rom/esp32c3/ld/esp32c3.rom.newlib.ld"

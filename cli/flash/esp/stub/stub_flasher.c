@@ -36,7 +36,8 @@
 #elif defined(ESP32C3)
 #include "esp32c3/rom/efuse.h"
 #include "esp32c3/rom/miniz.h"
-#include "esp32c3/rom/spi_flash.h"
+#include "esp32c3/rom/esp_flash.h"
+#include "esp_flash.h"
 #include "soc/spi_mem_reg.h"
 #include "soc/uart_reg.h"
 #endif
@@ -257,15 +258,15 @@ esp_rom_spiflash_result_t esp_rom_spiflash_erase_start(uint32_t addr,
 #elif defined(ESP32C3)
 esp_rom_spiflash_result_t esp_rom_spiflash_erase_start(uint32_t addr,
                                                        uint32_t cmd) {
-  uint32_t length = 0;
-  
   if (cmd == SPI_FLASH_BE) {
-    length = FLASH_BLOCK_SIZE;
+    addr /= FLASH_BLOCK_SIZE;
+    return esp_rom_spiflash_erase_block(addr);
   } else if (cmd == SPI_FLASH_SE) {
-    length = FLASH_SECTOR_SIZE;
+    addr /= FLASH_SECTOR_SIZE;
+    return esp_rom_spiflash_erase_sector(addr);
   }
   
-  return esp_rom_spiflash_erase_area(addr, length);
+  return ESP_ROM_SPIFLASH_RESULT_ERR;
 }
 #endif
 
@@ -432,10 +433,14 @@ int do_flash_digest(uint32_t addr, uint32_t len, uint32_t digest_block_size) {
 
 int do_flash_read_chip_id(void) {
   uint32_t chip_id = 0;
+#if defined(ESP32C3)
+  //esp_flash_read_chip_id(NULL, &chip_id);
+#else
   WRITE_PERI_REG(SPI_CMD_REG(0), SPI_FLASH_RDID);
   while (READ_PERI_REG(SPI_CMD_REG(0)) & SPI_FLASH_RDID) {
   }
   chip_id = READ_PERI_REG(SPI_W0_REG(0)) & 0xFFFFFF;
+#endif
   send_packet((uint8_t *) &chip_id, sizeof(chip_id));
   return 0;
 }
@@ -544,11 +549,15 @@ void stub_main1(void) {
   SET_PERI_REG_MASK(0x3FF00014, 1); /* Switch to 160 MHz */
 #elif defined(ESP32)
   esp_rom_spiflash_attach(ets_efuse_get_spiconfig(), 0 /* legacy */);
+#elif defined(ESP32C3)
+  //esp_flash_init(NULL);
 #endif
 
+#if defined(ESP8266) || defined(ESP32)
   esp_rom_spiflash_config_param(
       0 /* deviceId */, 16 * 1024 * 1024 /* chip_size */, FLASH_BLOCK_SIZE,
       FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, 0xffff /* status_mask */);
+#endif
 
   uint32_t old_div = 0;
   if (new_baud_rate > 0) {

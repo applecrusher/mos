@@ -36,6 +36,7 @@ import (
 	"github.com/mongoose-os/mos/cli/flash/esp"
 	"github.com/mongoose-os/mos/cli/flash/esp/rom_client"
 	"github.com/mongoose-os/mos/cli/flash/esp32"
+	"github.com/mongoose-os/mos/cli/flash/esp32c3"
 	"github.com/mongoose-os/mos/cli/flash/esp8266"
 )
 
@@ -96,6 +97,8 @@ func (fc *FlasherClient) connect(romBaudRate, baudRate uint) error {
 		stubJSON = esp8266.MustAsset("stub/stub.json")
 	case esp.ChipESP32:
 		stubJSON = esp32.MustAsset("stub/stub.json")
+	case esp.ChipESP32C3:
+		stubJSON = esp32c3.MustAsset("stub/stub.json")
 	default:
 		return errors.Errorf("unknown chip type %d", fc.ct)
 	}
@@ -207,6 +210,9 @@ func (fc *FlasherClient) GetFlashChipID() (uint32, error) {
 	binary.Read(bytes.NewBuffer(result[0]), binary.BigEndian, &chipID)
 	if chipID == 0 {
 		return 0, errors.New("failed to read chip id (0 is not a valid id)")
+	}
+	if chipID == 1 {
+		return 0, errors.New("failed to read chip id (1 is fake id)")
 	}
 	return (chipID >> 8), nil
 }

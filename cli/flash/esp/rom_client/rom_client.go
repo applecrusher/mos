@@ -31,6 +31,7 @@ import (
 	"github.com/mongoose-os/mos/cli/flash/common"
 	"github.com/mongoose-os/mos/cli/flash/esp"
 	"github.com/mongoose-os/mos/cli/flash/esp32"
+	"github.com/mongoose-os/mos/cli/flash/esp32c3"
 	"github.com/mongoose-os/mos/cli/flash/esp8266"
 	glog "k8s.io/klog/v2"
 )
@@ -188,6 +189,8 @@ func (rc *ROMClient) GetChipDescr() (string, error) {
 		return esp8266.GetChipDescr(rc)
 	case esp.ChipESP32:
 		return esp32.GetChipDescr(rc)
+	case esp.ChipESP32C3:
+		return esp32c3.GetChipDescr(rc)
 	}
 	return rc.ct.String(), nil
 }
@@ -231,6 +234,8 @@ func (rc *ROMClient) recvResponse() (*romResponse, error) {
 	case esp.ChipESP8266:
 		statusLen = 2
 	case esp.ChipESP32:
+		statusLen = 4
+	case esp.ChipESP32C3:
 		statusLen = 4
 	}
 	if bodyLen == statusLen {

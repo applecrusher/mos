@@ -23,6 +23,7 @@ type ChipType int
 const (
 	ChipESP8266 ChipType = iota
 	ChipESP32
+	ChipESP32C3
 )
 
 type FlashOpts struct {
@@ -53,6 +54,8 @@ func (ct ChipType) String() string {
 		return "ESP8266"
 	case ChipESP32:
 		return "ESP32"
+	case ChipESP32C3:
+		return "ESP32C3"
 	default:
 		return fmt.Sprintf("???(%d)", ct)
 	}
