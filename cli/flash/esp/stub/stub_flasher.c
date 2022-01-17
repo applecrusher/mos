@@ -76,17 +76,10 @@ extern uint32_t _bss_start, _bss_end;
 
 #define SPI_W0_REG(i) (REG_SPI_BASE(i) + 0x40)
 #elif defined(ESP32C3)
-#define SPI_CMD_REG(i) SPI_MEM_CMD_REG(i)
 #define SPI_FLASH_WREN SPI_MEM_FLASH_WREN
 #define SPI_FLASH_RDID SPI_MEM_FLASH_RDID
 #define SPI_FLASH_SE SPI_MEM_FLASH_SE
 #define SPI_FLASH_BE SPI_MEM_FLASH_BE
-
-#define SPI_ADDR_REG(i) SPI_MEM_ADDR_REG(i)
-
-#define SPI_USER_REG(i) SPI_MEM_USER_REG(i)
-
-#define SPI_W0_REG(i) SPI_MEM_W0_REG(i)
 #endif
 
 enum read_state {
@@ -434,7 +427,10 @@ int do_flash_digest(uint32_t addr, uint32_t len, uint32_t digest_block_size) {
 int do_flash_read_chip_id(void) {
   uint32_t chip_id = 0;
 #if defined(ESP32C3)
-  //esp_flash_read_chip_id(NULL, &chip_id);
+  WRITE_PERI_REG(PERIPHS_SPI_FLASH_CMD, SPI_FLASH_RDID);
+  while (READ_PERI_REG(PERIPHS_SPI_FLASH_CMD) & SPI_FLASH_RDID) {
+  }
+  chip_id = READ_PERI_REG(PERIPHS_SPI_FLASH_C0) & 0xFFFFFF;
 #else
   WRITE_PERI_REG(SPI_CMD_REG(0), SPI_FLASH_RDID);
   while (READ_PERI_REG(SPI_CMD_REG(0)) & SPI_FLASH_RDID) {
@@ -547,13 +543,11 @@ void stub_main1(void) {
   SelectSpiFunction();
   spi_flash_attach();
   SET_PERI_REG_MASK(0x3FF00014, 1); /* Switch to 160 MHz */
-#elif defined(ESP32)
+#elif defined(ESP32) || defined (ESP32C3)
   esp_rom_spiflash_attach(ets_efuse_get_spiconfig(), 0 /* legacy */);
-#elif defined(ESP32C3)
-  //esp_flash_init(NULL);
 #endif
 
-#if defined(ESP8266) || defined(ESP32)
+#if defined(ESP8266) || defined(ESP32) || defined (ESP32C3)
   esp_rom_spiflash_config_param(
       0 /* deviceId */, 16 * 1024 * 1024 /* chip_size */, FLASH_BLOCK_SIZE,
       FLASH_SECTOR_SIZE, FLASH_PAGE_SIZE, 0xffff /* status_mask */);
